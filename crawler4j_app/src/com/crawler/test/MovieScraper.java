@@ -11,17 +11,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 
-public class MovieScraper {
-	private static final Logger logger = LoggerFactory.getLogger(MovieScraper.class);
-	
-	private String myFileStorage;
-	
+public class MovieScraper extends MyScraper {
 	/**
 	 * Evalua el tipo y subtipo de pagina en los meta-tags e idnetifica si es una pelicula
 	 * @param metaTags envia los meta-tags para idntificar el tipo de pagina
@@ -40,7 +34,7 @@ public class MovieScraper {
 	 * @param url la url de la pagina actual
 	 * @param htmlParseData la pagina html pre-parse 
 	 */
-	public void processMovie(String url, HtmlParseData htmlParseData) {
+	public void process(String url, HtmlParseData htmlParseData) {
 		String id,name,published, description, posterurl;
 		Set<String> directors = new HashSet<String>();
 		Set<String> actors = new HashSet<String>();
@@ -88,10 +82,6 @@ public class MovieScraper {
 	}
 
 
-	public void setFileStorage(String myFileStorage) {
-		this.myFileStorage = myFileStorage;
-	}
-	
 	/**
 	 * Alamcena en la bd la pelicula actual
 	 * @param movie

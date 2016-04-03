@@ -7,8 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+//import org.jsoup.Jsoup;
+//import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,14 +32,13 @@ public class MovieCrawler extends WebCrawler{
 	private String[] myCrawlDomains;
 	private String myFileStorage;
 	CrawlStat myCrawlStat;
-	MovieScraper myScraper;
+	MyScraper myScraper;
 
 	private CrawlData myCrawlData;
 
 	public MovieCrawler()
 	{
 		myCrawlStat = new CrawlStat();
-		myScraper = new MovieScraper();		
 	}
 
 
@@ -49,6 +48,19 @@ public class MovieCrawler extends WebCrawler{
 
 		myFileStorage = myCrawlData.getFileStorage();
 		myCrawlDomains = myCrawlData.getCrawlerDomains();
+	
+		
+		switch (myCrawlData.getCurrMode()){		
+		case STANDARD:
+			myScraper = new MovieScraper();
+			break;
+		case MOVIELIST:
+			myScraper= new MovieListScraper();
+			break;
+		case REVIEWS:
+			myScraper = new MovieReviewScrapper();
+			break;			
+		}
 		
 		myScraper.setFileStorage(myFileStorage);
 
@@ -62,19 +74,39 @@ public class MovieCrawler extends WebCrawler{
 	 */
 	@Override
 	public boolean shouldVisit(Page page, WebURL url) {
+		
+		/**
+		 * Se verifica que ningun enlace haga referencia a ficheros que no son permitidos 
+		 */
 		String href = url.getURL().toLowerCase();
 		if (FILTERS.matcher(href).matches()) {
 			return false;
 		}
-
-		for (String crawlDomain : myCrawlDomains) {
-			if (href.contains(crawlDomain)) {
-				return true;
+		
+		
+		
+		switch (myCrawlData.getCurrMode()){		
+		case STANDARD:
+			for (String crawlDomain : myCrawlDomains) {
+				if (href.contains(crawlDomain)) {
+					return true;
+				}
 			}
-		}
+			break;
+		case MOVIELIST:
+			if (url.getAnchor()!=null && url.getAnchor().contains("Next »"))
+			{ 	System.out.println(url.getURL());
+			return true; }
+			break;
+		case REVIEWS:
+			//TODO: Verificar si es ncesario este case
+			break;
+		}		
 
 		return false;
 	}
+	
+	
 
 	/**
 	 * Visita la page actual
@@ -89,23 +121,27 @@ public class MovieCrawler extends WebCrawler{
 
 		logger.info("URL: {}", url);
 
-
 		if (page.getParseData() instanceof HtmlParseData) {
 			HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
 			String text = htmlParseData.getText();
 			String html = htmlParseData.getHtml();
 
+			
+			/*
+			 * Para iniciar scraper se valida el poatron de acuerdo al modo de scraper instanciado  
+			 * */
 			if (myScraper.matchs(htmlParseData.getMetaTags()))
 			{
-				logger.debug("MOVIE FOUND: {}", url);
-				myScraper.processMovie(url, htmlParseData);	    	  
+				logger.debug("SCRAPER FOUND: {}", url);
+				myScraper.process(url, htmlParseData);	    	  
 			}
-
+			
+			
 			/*
-			 * Se modifica el fuente html para psar limpio al guardar la página 
+			 * Se modifica el fuente html para pasar limpio de tags al guardar la página 
 			 * Jsoup.clean(html, Whitelist.none())
 			 */
-			
+						
 			saveFile(url, html);
 
 			Set<WebURL> links = htmlParseData.getOutgoingUrls();

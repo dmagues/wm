@@ -22,13 +22,16 @@ public class MovieCrawlerController {
 	 private int numberThreads;
 	 private int crawlDeph;
 	 private int maxPages = 1000;
+	 private Mode mode =  Mode.STANDARD;
 	
-	public MovieCrawlerController(String crawlStorage, int numberThreads, int crawlDeph, Integer maxPages) {
+	public MovieCrawlerController(String crawlStorage, int numberThreads, Mode mode, Integer maxPages) {
 		
 		this.myCrawlerStorage = crawlStorage;
 		this.numberThreads = numberThreads;
-		this.crawlDeph = crawlDeph;
+		this.crawlDeph = -1;
+		this.mode = mode;
 		if (maxPages!= null) this.maxPages=maxPages;
+		
 	}
 	
 	public void deletePathFiles(String storage){
@@ -61,12 +64,8 @@ public class MovieCrawlerController {
 		
 		config.setCrawlStorageFolder(myCrawlerStorage);
 
-		String fileStorage = createPathFiles(myCrawlerStorage);
-		String[] crawlerDomains = {"www.reelviews.net/reelviews/"};
-				
-		CrawlData data = new CrawlData();
-		data.setFileStorage (fileStorage);
-		data.setCrawlerDomains(crawlerDomains);
+		
+		
 		
 	    /*
 	     * Be polite: Make sure that we don't send more than 1 request per
@@ -111,22 +110,37 @@ public class MovieCrawlerController {
 	    config.setResumableCrawling(false);
 
 	    config.setUserAgentString("movie crawler - uam.es - dmagues@hotmail.com");
+	    
 	    /*
 	     * Instantiate the controller for this crawl.
-	     */
-	    PageFetcher pageFetcher = new PageFetcher(config);
-	    RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+	     */	    
+	    PageFetcher pageFetcher = new PageFetcher(config);	    
+	    RobotstxtConfig robotstxtConfig = new RobotstxtConfig();	    
 	    RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
 	    
 	    try {
-			this.controller = new CrawlController(config, pageFetcher, robotstxtServer);
+			this.controller = new CrawlController(config, pageFetcher, robotstxtServer);			
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 	    
+	    
+	    
+	    /**
+	     * TODO: Definir un proceso configurable para pasar el seed y el dominio
+	     * */
+	    controller.addSeed("http://www.imdb.com/search/keyword?explore=keywords&keywords=based-on-comic&mode=simple&page=1&ref_=kw_nxt&sort=moviemeter%2Casc");
+	    String[] crawlerDomains = {"http://www.imdb.com/search/keyword?explore=keywords&keywords=based-on-comic"};
+		
+		String fileStorage = createPathFiles(myCrawlerStorage);
+		CrawlData data = new CrawlData();
+		data.setFileStorage (fileStorage);
+		data.setCrawlerDomains(crawlerDomains);
+		data.setCurrMode(mode);
+	    
 	    controller.setCustomData(data);	    
-		controller.addSeed("http://www.reelviews.net/reelviews/");
+		
 		
 		long startTime = System.currentTimeMillis();
 
