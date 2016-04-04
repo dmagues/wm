@@ -1,4 +1,4 @@
-package com.crawler.test;
+package com.crawler.wm;
 
 import java.util.Map;
 

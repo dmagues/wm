@@ -1,4 +1,4 @@
-package com.crawler.test;
+package com.crawler.wm;
 
 public enum Mode {
 	STANDARD, MOVIELIST, REVIEWS;

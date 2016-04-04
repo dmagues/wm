@@ -1,4 +1,4 @@
-package com.crawler.test;
+package com.crawler.wm;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -81,9 +81,7 @@ public class MovieCrawler extends WebCrawler{
 		String href = url.getURL().toLowerCase();
 		if (FILTERS.matcher(href).matches()) {
 			return false;
-		}
-		
-		
+		}	
 		
 		switch (myCrawlData.getCurrMode()){		
 		case STANDARD:
@@ -95,11 +93,14 @@ public class MovieCrawler extends WebCrawler{
 			break;
 		case MOVIELIST:
 			if (url.getAnchor()!=null && url.getAnchor().contains("Next »"))
-			{ 	System.out.println(url.getURL());
-			return true; }
+			{ 	return true; }
 			break;
 		case REVIEWS:
-			//TODO: Verificar si es ncesario este case
+			for (String crawlDomain : myCrawlDomains) {
+				if (href.contains(crawlDomain)) {
+					return true;
+				}
+			}
 			break;
 		}		
 
@@ -125,10 +126,9 @@ public class MovieCrawler extends WebCrawler{
 			HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
 			String text = htmlParseData.getText();
 			String html = htmlParseData.getHtml();
-
 			
 			/*
-			 * Para iniciar scraper se valida el poatron de acuerdo al modo de scraper instanciado  
+			 * Para iniciar scraper se valida el patron de acuerdo al modo de scraper instanciado  
 			 * */
 			if (myScraper.matchs(htmlParseData.getMetaTags()))
 			{
@@ -141,8 +141,9 @@ public class MovieCrawler extends WebCrawler{
 			 * Se modifica el fuente html para pasar limpio de tags al guardar la página 
 			 * Jsoup.clean(html, Whitelist.none())
 			 */
-						
-			saveFile(url, html);
+			
+			if (myCrawlData.getCurrMode() == Mode.STANDARD)
+				saveFile(url, html);
 
 			Set<WebURL> links = htmlParseData.getOutgoingUrls();
 

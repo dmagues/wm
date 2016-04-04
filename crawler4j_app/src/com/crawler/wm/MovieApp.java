@@ -1,11 +1,16 @@
-package com.crawler.test;
+package com.crawler.wm;
+
+import java.io.IOException;
 
 public class MovieApp {
 
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+			
+		
 		if (args.length < 3 || args.length > 4) {
 		      System.out.println("Parametros requeridos: ");
 		      System.out.println("\t crawlStorageFolder \t(Indica la ruta donde se almacenan los resultados)");

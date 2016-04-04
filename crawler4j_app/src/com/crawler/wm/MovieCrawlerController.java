@@ -1,10 +1,13 @@
-package com.crawler.test;
+package com.crawler.wm;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.crawler.wm.data.PropertyFileManager;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -21,7 +24,7 @@ public class MovieCrawlerController {
 	 private String myCrawlerStorage;
 	 private int numberThreads;
 	 private int crawlDeph;
-	 private int maxPages = 1000;
+	 private int maxPages = -1;
 	 private Mode mode =  Mode.STANDARD;
 	
 	public MovieCrawlerController(String crawlStorage, int numberThreads, Mode mode, Integer maxPages) {
@@ -31,7 +34,7 @@ public class MovieCrawlerController {
 		this.crawlDeph = -1;
 		this.mode = mode;
 		if (maxPages!= null) this.maxPages=maxPages;
-		
+					
 	}
 	
 	public void deletePathFiles(String storage){
@@ -58,7 +61,7 @@ public class MovieCrawlerController {
 	  }
 	  
 	
-	private void processController()
+	private void processController() throws IOException
 	{
 		CrawlConfig config = new CrawlConfig();
 		
@@ -130,8 +133,31 @@ public class MovieCrawlerController {
 	    /**
 	     * TODO: Definir un proceso configurable para pasar el seed y el dominio
 	     * */
-	    controller.addSeed("http://www.imdb.com/search/keyword?explore=keywords&keywords=based-on-comic&mode=simple&page=1&ref_=kw_nxt&sort=moviemeter%2Casc");
-	    String[] crawlerDomains = {"http://www.imdb.com/search/keyword?explore=keywords&keywords=based-on-comic"};
+	    
+//	    controller.addSeed("http://akas.imdb.com/search/keyword?page=1&sort=moviemeter,asc&keywords=based-on-comic&title_type=movie&mode=detail&ref_=kw_nxt#main");
+//	    String[] crawlerDomains = {"http://akas.imdb.com/search/keyword"};
+	    
+//	    controller.addSeed("http://akas.imdb.com/search/keyword?page=1&sort=moviemeter,asc&keywords=based-on-comic%2Cmarvel-comics&title_type=movie&mode=detail&ref_=kw_nxt#main");
+//	    String[] crawlerDomains = {"http://akas.imdb.com/search/keyword"};
+	    
+//	    controller.addSeed("http://akas.imdb.com/search/keyword?page=1&sort=moviemeter,asc&keywords=based-on-comic%2Cdc-comics&title_type=movie&mode=detail&ref_=kw_nxt#main");
+//	    String[] crawlerDomains = {"http://akas.imdb.com/search/keyword"};
+	    
+//	    controller.addSeed("http://www.reelviews.net/reelviews/");
+//	    controller.addSeed("http://www.rogerebert.com/reviews/");
+//	    
+//	    String[] crawlerDomains = {"http://www.reelviews.net/reelviews/", 
+//	    							"http://www.rogerebert.com/reviews/"};
+
+	    
+	    PropertyFileManager.readPropertyFile();
+		
+	    for (String seed :PropertyFileManager.getPropertiesValues(mode.name(), "seed"))
+	    {
+	    	controller.addSeed(seed);
+	    }
+	    
+	    String[] crawlerDomains = PropertyFileManager.getPropertiesValues(mode.name(), "domain").toArray(new String[0]);
 		
 		String fileStorage = createPathFiles(myCrawlerStorage);
 		CrawlData data = new CrawlData();
@@ -169,7 +195,11 @@ public class MovieCrawlerController {
 	}
 
 	public void start() {
-		processController();			
+		try {
+			processController();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}			
 	}
 	
 	
