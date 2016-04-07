@@ -35,10 +35,8 @@ import es.uam.irg.opinion.sentiwordnet.SentiWordNet;
  * @version 1.0 - 16/03/2016
  */
 public class AmazonSentenceSubjectivityTest {
-    public void run(String sentence) {
-    	SentenceSubjectivity analizer = new SentenceSubjectivity(sentence);   	
-    	
-        //throw new UnsupportedOperationException("Not supported yet.");
+    public void run() {
+    	throw new UnsupportedOperationException("Not supported yet.");
     }
     
     public static void main(String[] args) {
@@ -53,19 +51,9 @@ public class AmazonSentenceSubjectivityTest {
             //AmazonItemReader amazonItemReader = new AmazonItemReader(itemsFile);
             //AmazonReviewReader amazonReviewReader = new AmazonReviewReader(reviewsFile);
             
-            AmazonSentenceSubjectivityTest test = new AmazonSentenceSubjectivityTest();
-            
-            String sentence = "This is a very good video, but not the best.I thought a lot of the time the "
-            		+ "audio recordings were pretty [bad], but still OK.One thing that [upset] me was that "
-            		+ "they used different clips from different concerts for one song. Example: Watch the "
-            		+ "footage of the first two songs. Sometimes Brad is wearing no shirt, sometimes he is "
-            		+ "wearing a black shirt.There is a good selection of songs from the first two albums, "
-            		+ "although I would have prefered to have more songs from Evil Empire, like Down Rodeo "
-            		+ "and Wind Below.Another dissapointing thing is that instead of making way for more "
-            		+ "concert footage they put all their video clips on there.You can see all the video clips "
-            		+ "on TV if you need to.All in all, this is a very good video, but after you have watched "
-            		+ "it a couple of times it becomes boring.If you are a big fan, then buy it.";            		
-            test.run(sentence);
+            AmazonSentenceSubjectivityTest test = new AmazonSentenceSubjectivityTest();            
+                       		
+            test.run();
         }
         catch( Exception e ) {
             e.printStackTrace();

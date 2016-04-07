@@ -18,7 +18,9 @@
 package es.uam.irg.nlp.syntax;
 
 import edu.stanford.nlp.ling.*;
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.*;
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.*;
@@ -50,7 +52,7 @@ public class SyntacticAnalyzer {
 
         Properties props = new Properties();
         //props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref, sentiment");
-        props.put("annotators", "tokenize, ssplit, pos, parse");
+        props.put("annotators", "pos, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         
         
@@ -58,13 +60,16 @@ public class SyntacticAnalyzer {
 
         Annotation annotation = new Annotation(text);
         pipeline.annotate(annotation);
+        
+        
 
         List<CoreMap> analyzedSentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
         if (analyzedSentences != null && !analyzedSentences.isEmpty()) {
             for (CoreMap analyzedSentence : analyzedSentences) {
-                String sentence = analyzedSentence.toString();
+                String sentence = analyzedSentence.toString();                
 
                 Tree tree = analyzedSentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+                
                 String treeDescription = tree.skipRoot().pennString();
                 SyntacticTreebank treebank = new SyntacticTreebank(treeDescription, true);
 

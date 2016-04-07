@@ -42,8 +42,8 @@ public class AmazonDocumentSentimentTest {
         try {
             String wordNetFolder = "./data/WordNet-2.1/dict/";
             String sentiWordNetFile = "./data/SentiWordNet_3.0.0/SentiWordNet_3.0.0_20130122_filtered.txt";
-            String itemsFile = "./data/Amazon-dataset/amazon_metadata_music.json";
-            String reviewsFile = "./data/Amazon-dataset/amazon_reviews_music.json";
+            String itemsFile = "./data/amazon/amazon_metadata_music.json";
+            String reviewsFile = "./data/amazon/amazon_reviews_music.json";
 
 //            WordNet wordNet = new WordNet(wordNetFolder);
 //            SentiWordNet sentiWordNet = new SentiWordNet(sentiWordNetFile);
