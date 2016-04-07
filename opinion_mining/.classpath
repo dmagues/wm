@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jaws-bin.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/ejml-0.23.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/javax.json.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/joda-time.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/jollyday.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/protobuf.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/slf4j-simple.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/stanford-corenlp-3.6.0-models.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/stanford-corenlp-3.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-3.6.0/xom.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
