@@ -27,25 +27,25 @@ package es.uam.irg.opinion;
  */
 public class OpinionScore {
 
-    private float subjectivity;
-    private float positivity;
-    private float negativity;
+    private double subjectivity;
+    private double positivity;
+    private double negativity;
 
-    public OpinionScore(float subjectivity, float positivity, float negativity) {
+    public OpinionScore(double subjectivity, double positivity, double negativity) {
         this.subjectivity = subjectivity;
         this.positivity = positivity;
         this.negativity = negativity;
     }
 
-    public float getSubjectivity() {
+    public double getSubjectivity() {
         return this.subjectivity;
     }
 
-    public float getPositivity() {
+    public double getPositivity() {
         return this.positivity;
     }
 
-    public float getNegativity() {
+    public double getNegativity() {
         return this.negativity;
     }
 

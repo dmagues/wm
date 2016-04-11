@@ -113,8 +113,8 @@ public class SentiWordNetSynset implements Comparable<SentiWordNetSynset> {
     @Override
     public String toString() {
         String s = "";
-        s += "\t" + this.synset + ":\t" + this.definition;
-        s += "\n\t\t" + this.examples;
+        s += "\n\t" + this.synset + ":\t" + this.definition;
+        //s += "\n\t\t" + this.examples;
         s += "\n\t\tpos=" + scorePositivity + "\tneg=" + scoreNegativity + "\tobj=" + scoreObjectivity;
         return s;
     }

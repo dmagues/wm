@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import es.uam.irg.nlp.syntax.pos.TaggedWord;
+import java.util.Map.Entry;
 
 public class OpinionAnalyzedSentence {
 
@@ -63,14 +62,21 @@ public class OpinionAnalyzedSentence {
 	
 	public String toString()
 	{
-		String s ="";
+		String s = "["+this.sentence+"]\n";
 		
-		for(Map.Entry<OpinionWord, OpinionEvidence> e:this.evidences.entrySet())
+//		for(Map.Entry<OpinionWord, OpinionEvidence> e:this.evidences.entrySet())
+//		{
+//			s+=String.format("%s => Pos: %f \t Neg: %f \t Subj: %f \n", e.getKey().getWord(), 
+//					e.getValue().getScore().getPositivity(), 
+//					e.getValue().getScore().getNegativity(),
+//					e.getValue().getScore().getSubjectivity()) ;
+//		}
+		
+		for (Entry<OpinionWord, List<OpinionWord>> words: this.synsets.entrySet())
 		{
-			s+=String.format("%s => Pos: %f \t Neg: %f \t Subj: %f \n", e.getKey().getWord(), 
-					e.getValue().getScore().getPositivity(), 
-					e.getValue().getScore().getNegativity(),
-					e.getValue().getScore().getSubjectivity()) ;
+			s+="\n" + words.toString();
+			s+="\t" + this.getEvidences().get(words).toString();
+			s+="\n";
 		}
 		
 		return s;

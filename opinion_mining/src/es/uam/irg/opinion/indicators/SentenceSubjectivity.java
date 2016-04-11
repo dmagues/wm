@@ -19,6 +19,8 @@ package es.uam.irg.opinion.indicators;
 
 import es.uam.irg.nlp.syntax.SyntacticAnalyzer;
 import es.uam.irg.nlp.syntax.SyntacticallyAnalyzedSentence;
+import es.uam.irg.opinion.OpinionAnalyzedSentence;
+import es.uam.irg.opinion.OpinionAnalyzer;
 import es.uam.irg.opinion.OpinionEvidence;
 import es.uam.irg.opinion.OpinionScore;
 import java.util.ArrayList;
@@ -35,24 +37,57 @@ import java.util.List;
 public class SentenceSubjectivity {
 
     private String sentence;
-    private OpinionScore score;
+    private OpinionScore score;    
     private List<OpinionEvidence> evidences;
+    private OpinionAnalyzer analizer;
 
+    
+    public SentenceSubjectivity() {
+        this.evidences = new ArrayList<OpinionEvidence>();
+        try {
+			this.analizer = new OpinionAnalyzer();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}        
+    }
+    
     public SentenceSubjectivity(String sentence) {
         this.sentence = sentence;
         this.evidences = new ArrayList<OpinionEvidence>();
+        try {
+			this.analizer = new OpinionAnalyzer();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}        
+    }
+    
+    public void process()
+    {
 
         List<SyntacticallyAnalyzedSentence> analized;
+        List<OpinionAnalyzedSentence> opinion = new ArrayList<OpinionAnalyzedSentence>();
+        
         try {
-			analized = SyntacticAnalyzer.analyzeSentences(sentence);
+        	
+			analized = SyntacticAnalyzer.analyzeSentences(sentence);	
 			System.out.println(analized.toString());
+						
+			for(SyntacticallyAnalyzedSentence _sentence:analized)
+			{
+				this.analizer.setSentence(_sentence.getSentence());
+				this.analizer.setSentenceWords(_sentence.getTokens());
+				this.analizer.setTree(_sentence.getTreebank());
+				opinion.add(this.analizer.analyze());
+			}
+			System.out.println(opinion);
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}       		
         		
-        		
-        //throw new UnsupportedOperationException("Not supported yet.");
         
     }
 
@@ -60,7 +95,11 @@ public class SentenceSubjectivity {
         return this.sentence;
     }
 
-    public OpinionScore getScore() {
+    public void setSentence(String sentence) {
+		this.sentence = sentence;
+	}
+
+	public OpinionScore getScore() {
         return this.score;
     }
 

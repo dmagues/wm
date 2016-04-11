@@ -39,8 +39,9 @@ public class SyntacticallyAnalyzedSentence {
     private String sentence;
     private SyntacticTreebank treebank;
     private SyntacticAnalysisData data;
+    private List<String> tokens;
 
-    public SyntacticallyAnalyzedSentence(String sentence, SyntacticTreebank treebank) throws Exception {
+    public SyntacticallyAnalyzedSentence(String sentence, SyntacticTreebank treebank, List<String> tokens) throws Exception {
         if (sentence == null || sentence.isEmpty()) {
             throw new IllegalArgumentException("Null or empty sentence");
         }
@@ -48,8 +49,13 @@ public class SyntacticallyAnalyzedSentence {
             throw new IllegalArgumentException("Null treebank");
         }
 
+        if (tokens == null) {
+            throw new IllegalArgumentException("Null tokens");
+        }
+        
         this.sentence = sentence;
         this.treebank = treebank;
+        this.tokens = tokens;
 
         this.data = new SyntacticAnalysisData();
         this.generateAnalysisData(this.treebank.getRootNode(), -1);
@@ -67,7 +73,15 @@ public class SyntacticallyAnalyzedSentence {
         return this.data;
     }
 
-    private void generateAnalysisData(SyntacticTreebankNode node, int parentId) throws Exception {
+    public List<String> getTokens() {
+		return tokens;
+	}
+
+	public void setTokens(List<String> tokens) {
+		this.tokens = tokens;
+	}
+
+	private void generateAnalysisData(SyntacticTreebankNode node, int parentId) throws Exception {
         List<SyntacticTreebankNode> children = this.treebank.getChildrenNodesOf(node);
 
         TaggedWord noun = null;

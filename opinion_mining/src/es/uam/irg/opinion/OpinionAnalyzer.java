@@ -98,12 +98,19 @@ public class OpinionAnalyzer {
 		OpinionAnalyzedSentence analyzedsentence = extract();
 		
 		for (Entry<OpinionWord, List<OpinionWord>> entry: analyzedsentence.getSynsets().entrySet()){
-			if (!entry.getValue().isEmpty())
-			{
+			
 				List<SentiWordNetSynset> senti = this.sentiword.getSynsets(entry.getKey().getWord(), entry.getKey().getPos());
-							
+				analyzedsentence.addOpinionEvidence(entry.getKey(), new OpinionEvidence(entry.getKey().getWord(), 1, calculateScore(senti)));
+		
+				if (!entry.getValue().isEmpty())
+				{
+					for(OpinionWord w:  entry.getValue())
+					{
+						senti = this.sentiword.getSynsets(w.getWord(), w.getPos());
+						analyzedsentence.addOpinionEvidence(w, new OpinionEvidence(w.getWord(), 2, calculateScore(senti)));
+					}
+				}			
 				
-			}
 		}
 		
 		return analyzedsentence;
@@ -296,6 +303,14 @@ public class OpinionAnalyzer {
 	    	index = maxElt.getKey();
 	    
 	    return synsets.get(index);
+	}
+	
+	private OpinionScore calculateScore(List<SentiWordNetSynset> sentiset)
+	{
+		double pos =  sentiset.stream().mapToDouble(s->s.getScorePositivity()).sum();
+		double neg =  sentiset.stream().mapToDouble(s->s.getScoreNegativity()).sum();
+		double obj =  sentiset.stream().mapToDouble(s->s.getScoreObjectivity()).sum();
+		return new OpinionScore(obj, pos, neg);
 	}
 
 	public void setSentenceWords(List<String> words) {

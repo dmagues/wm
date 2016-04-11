@@ -18,18 +18,12 @@
 package es.uam.irg.nlp.syntax;
 
 import edu.stanford.nlp.ling.*;
-import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.*;
-import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.*;
-import es.uam.irg.dataset.amazon.item.AmazonItem;
 import es.uam.irg.dataset.amazon.review.AmazonReview;
 import es.uam.irg.nlp.syntax.treebank.SyntacticTreebank;
-import es.uam.irg.opinion.OpinionAnalyzedSentence;
-import es.uam.irg.opinion.OpinionAnalyzer;
-import es.uam.irg.dataset.amazon.AmazonItemReader;
 import es.uam.irg.dataset.amazon.AmazonReviewReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -37,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +40,9 @@ import java.util.stream.Collectors;
  * and their nouns and their complements and dependences.
  *
  * @author Ivan Cantador, ivan.cantador@uam.es
+ * @author Daniel Magues, daniel.magues@estudiante.uam.es
  * @version 1.0 - 16/03/2016
+ * @version 1.1 - 10/04/2016 Add tokens of sentence at analyzed sentence constructor
  */
 public class SyntacticAnalyzer {
 
@@ -67,12 +62,6 @@ public class SyntacticAnalyzer {
         
         List<CoreMap> analyzedSentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 		        
-        /*Opinion analizer*/
-        OpinionAnalyzer analyzer = new OpinionAnalyzer();
-        List<OpinionAnalyzedSentence> opinionsentences = new ArrayList<OpinionAnalyzedSentence>();
-        
-        
-       
         if (analyzedSentences != null && !analyzedSentences.isEmpty()) {
             for (CoreMap analyzedSentence : analyzedSentences) {
                 String sentence = analyzedSentence.toString();             
@@ -83,17 +72,10 @@ public class SyntacticAnalyzer {
                 List<String> words = sentenceWords.stream()
                 		.map( w -> w.word())
                 		.collect(Collectors.toList());
-                             
-                
                 String treeDescription = tree.skipRoot().pennString();
                 SyntacticTreebank treebank = new SyntacticTreebank(treeDescription, true);
-                
-                analyzer.setSentence(sentence);
-                analyzer.setSentenceWords(words);
-                analyzer.setTree(treebank);
-                opinionsentences.add(analyzer.extract());
-
-                SyntacticallyAnalyzedSentence _sentence = new SyntacticallyAnalyzedSentence(sentence, treebank);
+                              
+                SyntacticallyAnalyzedSentence _sentence = new SyntacticallyAnalyzedSentence(sentence, treebank, words);
                 
                 _sentences.add(_sentence);
             }
@@ -101,53 +83,6 @@ public class SyntacticAnalyzer {
         return _sentences;
     }
 
-    
-    public static List<OpinionAnalyzedSentence> analyzeOpinionSentences(String text) throws Exception {
-        List<OpinionAnalyzedSentence> opinionsentences = new ArrayList<OpinionAnalyzedSentence>();
-        
-    	Properties props = new Properties();
-
-        props.put("annotators", "tokenize, ssplit, pos, parse");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-        
-        
-        text = text.replace("...", ".");
-
-        Annotation annotation = new Annotation(text);
-        pipeline.annotate(annotation);
-        
-        List<CoreMap> analyzedSentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
-		        
-        /*Opinion analizer*/
-        OpinionAnalyzer analyzer = new OpinionAnalyzer();
-       
-        if (analyzedSentences != null && !analyzedSentences.isEmpty()) {
-            for (CoreMap analyzedSentence : analyzedSentences) {
-                String sentence = analyzedSentence.toString();             
-                
-
-                Tree tree = analyzedSentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-                List<CoreLabel> sentenceWords = analyzedSentence.get(CoreAnnotations.TokensAnnotation.class);
-                List<String> words = sentenceWords.stream()
-                		.map( w -> w.word())
-                		.collect(Collectors.toList());
-                             
-                
-                String treeDescription = tree.skipRoot().pennString();
-                SyntacticTreebank treebank = new SyntacticTreebank(treeDescription, true);
-                
-                analyzer.setSentence(sentence);
-                analyzer.setSentenceWords(words);
-                analyzer.setTree(treebank);
-                System.out.println(treebank);
-                opinionsentences.add(analyzer.extract());
-               
-            }
-        }
-        return opinionsentences;
-    }
-
-    
     
     public static void main(String[] args) {
         try {
@@ -159,7 +94,7 @@ public class SyntacticAnalyzer {
                 }
             }));
 
-            List<OpinionAnalyzedSentence> analyzedSentences = null;
+            List<SyntacticallyAnalyzedSentence> analyzedSentences = null;
 
             System.out.println("==================================================");
             System.out.println("ITEM REVIEWS");
@@ -175,17 +110,17 @@ public class SyntacticAnalyzer {
                     System.out.println(review);
 
                     System.out.println("# summary");
-                    analyzedSentences = SyntacticAnalyzer.analyzeOpinionSentences(review.getSummary());
-                    for (OpinionAnalyzedSentence analyzedSentence : analyzedSentences) {
+                    analyzedSentences = SyntacticAnalyzer.analyzeSentences(review.getSummary());
+                    for (SyntacticallyAnalyzedSentence analyzedSentence : analyzedSentences) {
                         System.out.println(analyzedSentence.getSentence());
-                        System.out.println(analyzedSentence.getSynsets());
+                        System.out.println(analyzedSentence.getTreebank());
                     }
 
                     System.out.println("# text");
-                    analyzedSentences = SyntacticAnalyzer.analyzeOpinionSentences(review.getText());
-                    for (OpinionAnalyzedSentence analyzedSentence : analyzedSentences) {
+                    analyzedSentences = SyntacticAnalyzer.analyzeSentences(review.getText());
+                    for (SyntacticallyAnalyzedSentence analyzedSentence : analyzedSentences) {
                         System.out.println(analyzedSentence.getSentence());
-                        System.out.println(analyzedSentence.getSynsets());
+                        System.out.println(analyzedSentence.getTreebank());
                     }
                 }
             }            
