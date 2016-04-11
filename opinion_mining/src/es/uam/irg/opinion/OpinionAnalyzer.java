@@ -96,18 +96,23 @@ public class OpinionAnalyzer {
 	public OpinionAnalyzedSentence analyze()
 	{
 		OpinionAnalyzedSentence analyzedsentence = extract();
+		OpinionScore score=null;
 		
 		for (Entry<OpinionWord, List<OpinionWord>> entry: analyzedsentence.getSynsets().entrySet()){
 			
 				List<SentiWordNetSynset> senti = this.sentiword.getSynsets(entry.getKey().getWord(), entry.getKey().getPos());
-				analyzedsentence.addOpinionEvidence(entry.getKey(), new OpinionEvidence(entry.getKey().getWord(), 1, calculateScore(senti)));
+				score = calculateScore(senti);
+				if (score!=null)
+					analyzedsentence.addOpinionEvidence(entry.getKey(), new OpinionEvidence(entry.getKey().getWord(), 1, score));
 		
 				if (!entry.getValue().isEmpty())
 				{
 					for(OpinionWord w:  entry.getValue())
 					{
 						senti = this.sentiword.getSynsets(w.getWord(), w.getPos());
-						analyzedsentence.addOpinionEvidence(w, new OpinionEvidence(w.getWord(), 2, calculateScore(senti)));
+						score = calculateScore(senti);
+						if (score!=null)
+							analyzedsentence.addOpinionEvidence(w, new OpinionEvidence(w.getWord(), 2, score));
 					}
 				}			
 				
@@ -134,13 +139,16 @@ public class OpinionAnalyzer {
 	}
 
 	private static List<OpinionWord> getSynsetsTermsByType(Synset synset, List<OpinionWord> terms) {
+		OpinionWord ow = null;
 		if (synset.getType().equals(WordNet.NOUN))
 		{	
 			for(Synset hypernyms: WordNetSynset.getNounHypernymsOf(synset))
 			{
 				for(String w: WordNetSynset.getWordFormsOf(hypernyms))
 				{
-					terms.add(new OpinionWord(w, synset.getType().getCode()));
+					ow = new OpinionWord(w, synset.getType().getCode());
+					if (!terms.contains(ow))
+						terms.add(ow);
 				}
 					
 			}
@@ -149,7 +157,9 @@ public class OpinionAnalyzer {
 			{
 				for(String w: WordNetSynset.getWordFormsOf(hyponyms))
 				{
-					terms.add(new OpinionWord(w, synset.getType().getCode()));
+					ow = new OpinionWord(w, synset.getType().getCode());
+					if(!terms.contains(ow))
+						terms.add(ow);
 				}
 					
 			}
@@ -161,7 +171,9 @@ public class OpinionAnalyzer {
 			{
 				for(String w: WordNetSynset.getWordFormsOf(hypernyms))
 				{
-					terms.add(new OpinionWord(w, synset.getType().getCode()));
+					ow = new OpinionWord(w, synset.getType().getCode());
+					if(!terms.contains(ow))
+						terms.add(ow);
 				}					
 			}			
 		}
@@ -310,7 +322,11 @@ public class OpinionAnalyzer {
 		double pos =  sentiset.stream().mapToDouble(s->s.getScorePositivity()).sum();
 		double neg =  sentiset.stream().mapToDouble(s->s.getScoreNegativity()).sum();
 		double obj =  sentiset.stream().mapToDouble(s->s.getScoreObjectivity()).sum();
-		return new OpinionScore(obj, pos, neg);
+		
+		if (pos!=0 || neg!=0)
+			return new OpinionScore(obj, pos, neg);
+		
+		return null; 
 	}
 
 	public void setSentenceWords(List<String> words) {

@@ -62,21 +62,14 @@ public class OpinionAnalyzedSentence {
 	
 	public String toString()
 	{
-		String s = "["+this.sentence+"]\n";
-		
-//		for(Map.Entry<OpinionWord, OpinionEvidence> e:this.evidences.entrySet())
-//		{
-//			s+=String.format("%s => Pos: %f \t Neg: %f \t Subj: %f \n", e.getKey().getWord(), 
-//					e.getValue().getScore().getPositivity(), 
-//					e.getValue().getScore().getNegativity(),
-//					e.getValue().getScore().getSubjectivity()) ;
-//		}
+		String s = "\n["+this.sentence+"]";
 		
 		for (Entry<OpinionWord, List<OpinionWord>> words: this.synsets.entrySet())
 		{
 			s+="\n" + words.toString();
-			s+="\t" + this.getEvidences().get(words).toString();
-			s+="\n";
+			s+="\n\t" + this.getEvidences().get(words.getKey());
+			for(OpinionWord ow:words.getValue())
+			{s+="\n\t\t" + this.getEvidences().get(ow);}
 		}
 		
 		return s;

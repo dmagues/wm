@@ -63,30 +63,23 @@ public class SentenceSubjectivity {
 		}        
     }
     
-    public void process()
+    public void process() throws Exception
     {
 
         List<SyntacticallyAnalyzedSentence> analized;
         List<OpinionAnalyzedSentence> opinion = new ArrayList<OpinionAnalyzedSentence>();
         
-        try {
-        	
-			analized = SyntacticAnalyzer.analyzeSentences(sentence);	
-			System.out.println(analized.toString());
-						
-			for(SyntacticallyAnalyzedSentence _sentence:analized)
-			{
-				this.analizer.setSentence(_sentence.getSentence());
-				this.analizer.setSentenceWords(_sentence.getTokens());
-				this.analizer.setTree(_sentence.getTreebank());
-				opinion.add(this.analizer.analyze());
-			}
-			System.out.println(opinion);
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}       		
+        analized = SyntacticAnalyzer.analyzeSentences(sentence);	
+		System.out.println(analized.toString());
+					
+		for(SyntacticallyAnalyzedSentence _sentence:analized)
+		{
+			this.analizer.setSentence(_sentence.getSentence());
+			this.analizer.setSentenceWords(_sentence.getTokens());
+			this.analizer.setTree(_sentence.getTreebank());
+			opinion.add(this.analizer.analyze());
+		}
+		System.out.println(opinion);
         		
         
     }

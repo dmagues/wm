@@ -39,30 +39,25 @@ import es.uam.irg.opinion.indicators.SentenceSubjectivity;
 public class AmazonSentenceSubjectivityTest {
     private AmazonReviewReader reviews;
     
-    public void run() {
+    public void run() throws Exception {
     	
     	SentenceSubjectivity subjectivity = new SentenceSubjectivity();    	
     	
-    	try {
-    		Map<String, Map<String, AmazonReview>> _reviews = reviews.loadReviews(0,1);
-    		for (String itemId : _reviews.keySet()) {
-                Map<String, AmazonReview> itemReviews = _reviews.get(itemId);
-                for (String userId : itemReviews.keySet()) {
-                    System.out.println("--------------------------------------------------");
-                    AmazonReview review = itemReviews.get(userId);
-					System.out.println(review);
-					System.out.println("--------------------------------------------------");
-					
-					subjectivity.setSentence(review.getText());
-					subjectivity.process();
-					break;					 
-				 }
-				 break;
+    	Map<String, Map<String, AmazonReview>> _reviews = reviews.loadReviews(0,1);
+		for (String itemId : _reviews.keySet()) {
+		    Map<String, AmazonReview> itemReviews = _reviews.get(itemId);
+		    for (String userId : itemReviews.keySet()) {
+		        System.out.println("--------------------------------------------------");
+		        AmazonReview review = itemReviews.get(userId);
+				System.out.println(review);
+				System.out.println("--------------------------------------------------");
 				
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				subjectivity.setSentence(review.getText());
+				subjectivity.process();
+				break;					 
+			 }
+			 break;
+			
 		} 		
     		
     	  	
@@ -70,28 +65,23 @@ public class AmazonSentenceSubjectivityTest {
     
 
     
-    public static void main(String[] args) {
-        try {
-        	System.setErr(new PrintStream(new OutputStream() {  // this is to hide the meesages from CORE NLP
+    public static void main(String[] args) throws Exception {
+        System.setErr(new PrintStream(new OutputStream() {  // this is to hide the meesages from CORE NLP
 
-                public void write(int b) {
-                }
-            }));
-            //String wordNetFolder = "./data/WordNet-2.1/dict/";
-            //String sentiWordNetFile = "./data/SentiWordNet_3.0.0/SentiWordNet_3.0.0_20130122_filtered.txt";
-            //String itemsFile = "./data/amazon/amazon_metadata_music.json";
-            String reviewsFile = "./data/amazon/amazon_reviews_music.json";
-            
-            AmazonReviewReader amazonReviewReader = new AmazonReviewReader(reviewsFile);
-            
-            AmazonSentenceSubjectivityTest test = new AmazonSentenceSubjectivityTest();
-            
-            test.setReviews(amazonReviewReader);
-            test.run();
-        }
-        catch( Exception e ) {
-            e.printStackTrace();
-        }
+		    public void write(int b) {
+		    }
+		}));
+		//String wordNetFolder = "./data/WordNet-2.1/dict/";
+		//String sentiWordNetFile = "./data/SentiWordNet_3.0.0/SentiWordNet_3.0.0_20130122_filtered.txt";
+		//String itemsFile = "./data/amazon/amazon_metadata_music.json";
+		String reviewsFile = "./data/amazon/amazon_reviews_music.json";
+		
+		AmazonReviewReader amazonReviewReader = new AmazonReviewReader(reviewsFile);
+		
+		AmazonSentenceSubjectivityTest test = new AmazonSentenceSubjectivityTest();
+		
+		test.setReviews(amazonReviewReader);
+		test.run();
     }
 
 	private void setReviews(AmazonReviewReader amazonReviewReader) {
