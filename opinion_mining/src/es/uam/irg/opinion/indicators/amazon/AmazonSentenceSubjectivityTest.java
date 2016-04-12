@@ -43,7 +43,7 @@ public class AmazonSentenceSubjectivityTest {
     	
     	SentenceSubjectivity subjectivity = new SentenceSubjectivity();    	
     	
-    	Map<String, Map<String, AmazonReview>> _reviews = reviews.loadReviews(0,1);
+    	Map<String, Map<String, AmazonReview>> _reviews = reviews.loadReviews(0,10);
 		for (String itemId : _reviews.keySet()) {
 		    Map<String, AmazonReview> itemReviews = _reviews.get(itemId);
 		    for (String userId : itemReviews.keySet()) {
@@ -54,11 +54,13 @@ public class AmazonSentenceSubjectivityTest {
 				
 				subjectivity.setSentence(review.getText());
 				subjectivity.process();
-				break;					 
-			 }
-			 break;
+				System.out.println(subjectivity);
+						 
+			 }		
 			
-		} 		
+		} 
+		
+		
     		
     	  	
     }

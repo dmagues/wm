@@ -40,6 +40,7 @@ public class SentenceSubjectivity {
     private OpinionScore score;    
     private List<OpinionEvidence> evidences;
     private OpinionAnalyzer analizer;
+    private List<OpinionAnalyzedSentence> opinions;
 
     
     public SentenceSubjectivity() {
@@ -67,24 +68,48 @@ public class SentenceSubjectivity {
     {
 
         List<SyntacticallyAnalyzedSentence> analized;
-        List<OpinionAnalyzedSentence> opinion = new ArrayList<OpinionAnalyzedSentence>();
+        opinions = new ArrayList<OpinionAnalyzedSentence>();
         
         analized = SyntacticAnalyzer.analyzeSentences(sentence);	
-		System.out.println(analized.toString());
-					
+							
 		for(SyntacticallyAnalyzedSentence _sentence:analized)
 		{
 			this.analizer.setSentence(_sentence.getSentence());
 			this.analizer.setSentenceWords(_sentence.getTokens());
 			this.analizer.setTree(_sentence.getTreebank());
-			opinion.add(this.analizer.analyze());
+			opinions.add(this.analizer.analyze());
 		}
-		System.out.println(opinion);
-        		
+		
+		calculateSentenceSubjectivity();        		
         
     }
 
-    public String getSentence() {
+    private void calculateSentenceSubjectivity() {
+		
+    	if (this.opinions ==null)
+    		return;
+    	
+    	this.evidences.clear();
+    	
+    	double pos = 0, neg=0, subj=0;
+    	
+    	for(OpinionAnalyzedSentence opinion:opinions)
+    	{
+    		this.evidences.addAll(new ArrayList<OpinionEvidence>(opinion.getEvidences().values()));
+    		
+    		if (opinion.getScore()!=null)
+    		{
+    			pos+=opinion.getScore().getPositivity();
+        		neg+=opinion.getScore().getNegativity();
+        		subj+=opinion.getScore().getSubjectivity();
+    		}
+    		
+    		
+    	}    	
+    	this.score = new OpinionScore(subj, pos, neg);
+	}
+
+	public String getSentence() {
         return this.sentence;
     }
 

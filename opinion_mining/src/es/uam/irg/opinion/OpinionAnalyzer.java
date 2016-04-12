@@ -101,7 +101,7 @@ public class OpinionAnalyzer {
 		for (Entry<OpinionWord, List<OpinionWord>> entry: analyzedsentence.getSynsets().entrySet()){
 			
 				List<SentiWordNetSynset> senti = this.sentiword.getSynsets(entry.getKey().getWord(), entry.getKey().getPos());
-				score = calculateScore(senti);
+				score = calculateTermScore(senti);
 				if (score!=null)
 					analyzedsentence.addOpinionEvidence(entry.getKey(), new OpinionEvidence(entry.getKey().getWord(), 1, score));
 		
@@ -110,7 +110,7 @@ public class OpinionAnalyzer {
 					for(OpinionWord w:  entry.getValue())
 					{
 						senti = this.sentiword.getSynsets(w.getWord(), w.getPos());
-						score = calculateScore(senti);
+						score = calculateTermScore(senti);
 						if (score!=null)
 							analyzedsentence.addOpinionEvidence(w, new OpinionEvidence(w.getWord(), 2, score));
 					}
@@ -118,10 +118,28 @@ public class OpinionAnalyzer {
 				
 		}
 		
+		analyzedsentence.setScore(calculateSentenceScore(analyzedsentence));
+		
 		return analyzedsentence;
 				
 	}
 	
+	
+	private OpinionScore calculateSentenceScore(OpinionAnalyzedSentence oas)
+	{
+		
+		if (!oas.getEvidences().isEmpty())
+		{
+			double wPos = oas.getEvidences().values().stream().mapToDouble(e->e.getScore().getPositivity()).sum()/oas.getSentence().length();
+			double wNeg = oas.getEvidences().values().stream().mapToDouble(e->e.getScore().getNegativity()).sum()/oas.getSentence().length();
+			double wSubj = oas.getEvidences().values().stream().mapToDouble(e->e.getScore().getSubjectivity()).sum()/oas.getSentence().length();
+
+			OpinionScore os = new OpinionScore(wSubj, wPos, wNeg);			
+			return os;
+		}
+		return null;	
+		
+	}
 	
 	
 	private static List<OpinionWord> getSynsetTerms(Synset synset, int pos) {
@@ -317,7 +335,7 @@ public class OpinionAnalyzer {
 	    return synsets.get(index);
 	}
 	
-	private OpinionScore calculateScore(List<SentiWordNetSynset> sentiset)
+	private OpinionScore calculateTermScore(List<SentiWordNetSynset> sentiset)
 	{
 		double pos =  sentiset.stream().mapToDouble(s->s.getScorePositivity()).sum();
 		double neg =  sentiset.stream().mapToDouble(s->s.getScoreNegativity()).sum();

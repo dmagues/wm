@@ -13,7 +13,7 @@ public class OpinionAnalyzedSentence {
 	private Map<OpinionWord,List<OpinionWord>> synsets;
 	
 	private Map<OpinionWord,OpinionEvidence> evidences;
-	private OpinionScore score;
+	private OpinionScore score=null;
 	
 	public OpinionAnalyzedSentence(){
 		this.synsets = new HashMap<OpinionWord, List<OpinionWord>>();
@@ -46,7 +46,7 @@ public class OpinionAnalyzedSentence {
 	}
 
 	public Map<OpinionWord, OpinionEvidence> getEvidences() {
-		return evidences;
+		return this.evidences;
 	}	
 	public void addOpinionEvidence(OpinionWord term, OpinionEvidence evidence)
 	{
@@ -63,17 +63,21 @@ public class OpinionAnalyzedSentence {
 	public String toString()
 	{
 		String s = "\n["+this.sentence+"]";
+		s += "\n["+this.score+"]";
 		
-		for (Entry<OpinionWord, List<OpinionWord>> words: this.synsets.entrySet())
-		{
-			s+="\n" + words.toString();
-			s+="\n\t" + this.getEvidences().get(words.getKey());
-			for(OpinionWord ow:words.getValue())
-			{s+="\n\t\t" + this.getEvidences().get(ow);}
-		}
+//		for (Entry<OpinionWord, List<OpinionWord>> words: this.synsets.entrySet())
+//		{
+//			s+="\n" + words.toString();
+//			s+="\n\t" + this.getEvidences().get(words.getKey());
+//			for(OpinionWord ow:words.getValue())
+//			{s+="\n\t\t" + this.getEvidences().get(ow);}
+//		}
 		
 		return s;
 	}
+	
+	
+	
 	
 	
 	
