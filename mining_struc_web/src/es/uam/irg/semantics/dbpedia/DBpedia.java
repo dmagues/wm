@@ -275,7 +275,15 @@ public class DBpedia {
      * @return a list with the retrieved categtories and types as RDF nodes
      */
     public static List<RDFNode> queryForCategoriesAndTypesOf(String subjectURI) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet");
+        
+    	String query= NAMESPACES_SPARQL
+    			+ "SELECT ?o"
+    			+ "WHERE { "
+    			+ "	{dbr:"+subjectURI+" rdf:type ?o} "
+    			+ " UNION "
+    			+ "	{dbr:"+subjectURI+" dct:subject ?o} ."
+   				+" 	}";
+    	return null;
     }
 
     /**
