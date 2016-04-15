@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * DBpedia
  * 
@@ -275,15 +277,32 @@ public class DBpedia {
      * @return a list with the retrieved categtories and types as RDF nodes
      */
     public static List<RDFNode> queryForCategoriesAndTypesOf(String subjectURI) throws Exception {
+        List<RDFNode> results = new ArrayList<RDFNode>();
         
     	String query= NAMESPACES_SPARQL
-    			+ "SELECT ?o"
+    			+ "SELECT ?o "
     			+ "WHERE { "
-    			+ "	{dbr:"+subjectURI+" rdf:type ?o} "
+    			+ "	{dbr:"+subjectURI+" dct:subject ?o} "
     			+ " UNION "
-    			+ "	{dbr:"+subjectURI+" dct:subject ?o} ."
+    			+ "	{dbr:"+subjectURI+" rdf:type ?o} "
+    			+ " UNION "    			
+    			+ "	{dbr:"+subjectURI+" dbp:wordnet_type ?o} ."
    				+" 	}";
-    	return null;
+    	
+    	Query sparqlQuery = QueryFactory.create(query);
+    	QueryExecution qexec = QueryExecutionFactory.sparqlService(SPARQL_ENDPOINT, sparqlQuery);
+    	
+    	if (qexec != null) {
+            ResultSet resultSet = qexec.execSelect();
+            while (resultSet != null && resultSet.hasNext()) {
+                QuerySolution solution = resultSet.nextSolution();
+                RDFNode object = solution.get("o");
+                results.add(object);                
+            }
+            qexec.close();
+        }
+    	
+    	return results;
     }
 
     /**
@@ -311,7 +330,32 @@ public class DBpedia {
      * @return a list with the retrieved instances as RDF nodes
      */
     public static List<RDFNode> queryForInstancesOf(String categoryURI) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet");
+    	List<RDFNode> results = new ArrayList<RDFNode>();
+        
+    	String query= NAMESPACES_SPARQL
+    			+ "SELECT ?s "
+    			+ "WHERE { "
+    			+ "	{?s dct:subject dbr:"+categoryURI+"} "
+    			+ " UNION "
+    			+ "	{?s rdf:type dbr:"+categoryURI+"} "
+    			+ " UNION "    			
+    			+ "	{?s dbp:wordnet_type dbr:"+categoryURI+"} ."
+   				+" 	}";
+    	
+    	Query sparqlQuery = QueryFactory.create(query);
+    	QueryExecution qexec = QueryExecutionFactory.sparqlService(SPARQL_ENDPOINT, sparqlQuery);
+    	
+    	if (qexec != null) {
+            ResultSet resultSet = qexec.execSelect();
+            while (resultSet != null && resultSet.hasNext()) {
+                QuerySolution solution = resultSet.nextSolution();
+                RDFNode property = solution.get("s");
+                results.add(property);                
+            }
+            qexec.close();
+        }
+    	
+    	return results;
     }
 
     /**
@@ -335,7 +379,35 @@ public class DBpedia {
      * @return a ranked list of the retrieved entities as RDF nodes
      */
     public static List<ScoredRDFNode> queryForEntitiesWithLabelAs(String text, List<String> forbiddenURIsPatterns) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet");
+    	List<ScoredRDFNode> results = new ArrayList<ScoredRDFNode>();
+    	
+        String query = NAMESPACES_SPARQL 
+        		+ "SELECT ?s ?label "
+        		+ " WHERE "
+        		+ "{" 
+        		+ " ?s rdfs:label ?label . "
+        		+ " FILTER regex(?label, '"+text+"', 'i')" 
+        		+ "}";
+        
+        Query sparqlQuery = QueryFactory.create(query);
+    	QueryExecution qexec = QueryExecutionFactory.sparqlService(SPARQL_ENDPOINT, sparqlQuery);
+    	
+    	
+    	if (qexec != null) {
+            ResultSet resultSet = qexec.execSelect();
+            while (resultSet != null && resultSet.hasNext()) {
+                QuerySolution solution = resultSet.nextSolution();
+                RDFNode subject = solution.get("s");
+                RDFNode object = solution.get("label");
+                
+                ScoredRDFNode scoredNode = new ScoredRDFNode(subject, 
+                		StringUtils.getLevenshteinDistance(text, object.asLiteral().getString()));
+                results.add(scoredNode);                
+            }
+            qexec.close();
+        }
+        
+        return null;
     }
 
     public static void test0() throws Exception {
@@ -395,7 +467,7 @@ public class DBpedia {
     public static void test1() throws Exception {
         System.out.println("================================================================================");
         System.out.println("Test 1: Obtaining the categories/types of certain instance\n");
-        String subject2URI = "http://dbpedia.org/resource/Autonomous_University_of_Madrid";
+        String subject2URI = "Marvel_Comics"; //"Autonomous_University_of_Madrid";
         List<RDFNode> types = DBpedia.queryForCategoriesAndTypesOf(subject2URI);
         System.out.println(subject2URI);
         for (RDFNode type : types) {
@@ -408,7 +480,7 @@ public class DBpedia {
 
         System.out.println("================================================================================");
         System.out.println("Test 2: Obtaining the instances of certain category/type\n");
-        String categoryURI = "http://dbpedia.org/resource/Category:Universities_in_Madrid";
+        String categoryURI = "Category:Marvel_Comics_superheroes"; //"Category:Universities_in_Madrid";
         List<RDFNode> instances = DBpedia.queryForInstancesOf(categoryURI);
         System.out.println(categoryURI);
         for (RDFNode instance : instances) {
@@ -453,8 +525,8 @@ public class DBpedia {
 
     public static void main(String[] args) {
         try {
-            DBpedia.test0();
-//            DBpedia.test1();
+//            DBpedia.test0();
+            DBpedia.test1();
 //            DBpedia.test2();
 //            DBpedia.test3();
         } catch (Exception e) {
