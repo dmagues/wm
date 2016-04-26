@@ -17,10 +17,13 @@
  */
 package es.uam.irg.opinion.indicators;
 
+import es.uam.irg.nlp.syntax.SyntacticAnalyzer;
+import es.uam.irg.nlp.syntax.SyntacticallyAnalyzedSentence;
 import es.uam.irg.opinion.OpinionEvidence;
 import es.uam.irg.opinion.OpinionScore;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * DocumentSentiment
@@ -35,12 +38,12 @@ public class DocumentSentiment {
     private String id;
     private OpinionScore score;
     private List<List<OpinionEvidence>> evidences;
+    private String documentText;
 
     public DocumentSentiment(String documentId, String documentText) {
         this.id = documentId;
+        this.documentText = documentText;
         this.evidences = new ArrayList<List<OpinionEvidence>>();
-
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public String getId() {
@@ -69,4 +72,25 @@ public class DocumentSentiment {
         }
         return s;
     }
+
+	public void process() throws Exception {
+		SentenceSubjectivity subjectivity = new SentenceSubjectivity();    	
+    	
+    	List<SyntacticallyAnalyzedSentence> analized;		        
+		analized = SyntacticAnalyzer.analyzeSentences(this.documentText);
+		double subj=0, pos=0, neg=0;
+		        
+		for(SyntacticallyAnalyzedSentence a:analized)
+		{
+			subjectivity.process(a);
+			this.evidences.add(subjectivity.getEvidences());
+			
+			subj+=subjectivity.getScore().getSubjectivity();
+			pos+= subjectivity.getScore().getPositivity();
+			neg+=subjectivity.getScore().getNegativity();			
+			
+		}		
+		this.score =  new OpinionScore(subj,pos, neg);			
+		
+	}
 }

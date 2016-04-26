@@ -19,9 +19,12 @@ package es.uam.irg.opinion.indicators.amazon;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Map;
 import es.uam.irg.dataset.amazon.AmazonReviewReader;
 import es.uam.irg.dataset.amazon.review.AmazonReview;
+import es.uam.irg.nlp.syntax.SyntacticAnalyzer;
+import es.uam.irg.nlp.syntax.SyntacticallyAnalyzedSentence;
 import es.uam.irg.opinion.indicators.SentenceSubjectivity;
 
 
@@ -51,18 +54,18 @@ public class AmazonSentenceSubjectivityTest {
 		        AmazonReview review = itemReviews.get(userId);
 				System.out.println(review);
 				System.out.println("--------------------------------------------------");
-				
-				subjectivity.setSentence(review.getText());
-				subjectivity.process();
-				System.out.println(subjectivity);
-						 
-			 }		
-			
-		} 
-		
-		
-    		
-    	  	
+								
+				List<SyntacticallyAnalyzedSentence> analized;		        
+		        analized = SyntacticAnalyzer.analyzeSentences(review.getText());				
+		        
+		        for(SyntacticallyAnalyzedSentence a:analized)
+		        {
+		        	subjectivity.setSentence(a.getSentence());
+					subjectivity.process(a);
+					System.out.println(subjectivity);
+		        }		 
+			 }			
+		}  	
     }
     
 
@@ -73,9 +76,7 @@ public class AmazonSentenceSubjectivityTest {
 		    public void write(int b) {
 		    }
 		}));
-		//String wordNetFolder = "./data/WordNet-2.1/dict/";
-		//String sentiWordNetFile = "./data/SentiWordNet_3.0.0/SentiWordNet_3.0.0_20130122_filtered.txt";
-		//String itemsFile = "./data/amazon/amazon_metadata_music.json";
+
 		String reviewsFile = "./data/amazon/amazon_reviews_music.json";
 		
 		AmazonReviewReader amazonReviewReader = new AmazonReviewReader(reviewsFile);
@@ -86,7 +87,7 @@ public class AmazonSentenceSubjectivityTest {
 		test.run();
     }
 
-	private void setReviews(AmazonReviewReader amazonReviewReader) {
+	public void setReviews(AmazonReviewReader amazonReviewReader) {
 		this.reviews=amazonReviewReader;
 		
 	}

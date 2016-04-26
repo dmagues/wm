@@ -17,6 +17,9 @@
  */
 package es.uam.irg.opinion.indicators;
 
+import es.uam.irg.nlp.syntax.SyntacticAnalyzer;
+import es.uam.irg.nlp.syntax.SyntacticallyAnalyzedSentence;
+import es.uam.irg.opinion.OpinionAnalyzer;
 import es.uam.irg.opinion.OpinionAspect;
 import es.uam.irg.opinion.OpinionEvidence;
 import es.uam.irg.opinion.OpinionScore;
@@ -31,18 +34,55 @@ import java.util.Map;
  *
  * @author Ivan Cantador, ivan.cantador@uam.es
  * @version 1.0 - 16/03/2016
+ * 
+ * @author Daniel Magües, daniel.magues@estudiante.uam.es
+ * @version 2.0 - 25/04/2016
+ *   
  */
 public class AspectSentiments {
 
     private Map<OpinionAspect, OpinionScore> scores;
     private Map<OpinionAspect, List<OpinionEvidence>> evidences;
+    private String documentText;
+    private OpinionAnalyzer analizer;
+    
+    public String getDocumentText() {
+		return documentText;
+	}
 
-    public AspectSentiments(String documentText, List<OpinionAspect> aspects) {
+	public void setDocumentText(String documentText) {
+		this.documentText = documentText;
+	}
+
+	
+
+    public AspectSentiments() throws Exception {
+        
+        this.analizer = new OpinionAnalyzer();
+    }
+    
+    public AspectSentiments(String documentText, List<OpinionAspect> aspects) throws Exception {
         this.scores = new HashMap<OpinionAspect, OpinionScore>();
         this.evidences = new HashMap<OpinionAspect, List<OpinionEvidence>>();
-
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.documentText = documentText;
+        this.analizer = new OpinionAnalyzer();
     }
+    
+    public void process() throws Exception{
+    	
+    	List<SyntacticallyAnalyzedSentence> analized;		        
+    	analized = SyntacticAnalyzer.analyzeSentences(this.documentText);
+    	this.scores = new HashMap<OpinionAspect, OpinionScore>();
+        this.evidences = new HashMap<OpinionAspect, List<OpinionEvidence>>(); 
+
+    	for(SyntacticallyAnalyzedSentence a:analized)
+    	{
+    		this.analizer.analyzeAspects(a);    		
+    		this.scores.putAll(this.analizer.getAspects());
+    		this.evidences.putAll(this.analizer.getAspectsEvidence());
+    	}		    	    	
+    	
+    }    
 
     public Map<OpinionAspect, OpinionScore> getScores() {
         return this.scores;

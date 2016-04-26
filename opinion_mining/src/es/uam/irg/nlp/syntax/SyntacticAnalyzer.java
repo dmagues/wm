@@ -121,6 +121,7 @@ public class SyntacticAnalyzer {
                     for (SyntacticallyAnalyzedSentence analyzedSentence : analyzedSentences) {
                         System.out.println(analyzedSentence.getSentence());
                         System.out.println(analyzedSentence.getTreebank());
+                        System.out.println(analyzedSentence.getAnalysisData());
                     }
                 }
             }            

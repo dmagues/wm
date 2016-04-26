@@ -27,6 +27,7 @@ import java.util.Objects;
  *
  * @author Ivan Cantador, ivan.cantador@uam.es
  * @version 1.0 - 16/03/2016
+ * 
  */
 public class OpinionAspect {
     private String name;

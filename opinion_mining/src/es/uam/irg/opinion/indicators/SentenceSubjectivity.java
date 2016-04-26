@@ -17,7 +17,6 @@
  */
 package es.uam.irg.opinion.indicators;
 
-import es.uam.irg.nlp.syntax.SyntacticAnalyzer;
 import es.uam.irg.nlp.syntax.SyntacticallyAnalyzedSentence;
 import es.uam.irg.opinion.OpinionAnalyzedSentence;
 import es.uam.irg.opinion.OpinionAnalyzer;
@@ -40,7 +39,7 @@ public class SentenceSubjectivity {
     private OpinionScore score;    
     private List<OpinionEvidence> evidences;
     private OpinionAnalyzer analizer;
-    private List<OpinionAnalyzedSentence> opinions;
+    private OpinionAnalyzedSentence opinion;
 
     
     public SentenceSubjectivity() {
@@ -64,48 +63,35 @@ public class SentenceSubjectivity {
 		}        
     }
     
-    public void process() throws Exception
+    public void process(SyntacticallyAnalyzedSentence _sentence) throws Exception
     {
 
-        List<SyntacticallyAnalyzedSentence> analized;
-        opinions = new ArrayList<OpinionAnalyzedSentence>();
+        this.sentence=_sentence.getSentence();
         
-        analized = SyntacticAnalyzer.analyzeSentences(sentence);	
-							
-		for(SyntacticallyAnalyzedSentence _sentence:analized)
-		{
-			this.analizer.setSentence(_sentence.getSentence());
-			this.analizer.setSentenceWords(_sentence.getTokens());
-			this.analizer.setTree(_sentence.getTreebank());
-			opinions.add(this.analizer.analyze());
-		}
+		this.analizer.setSentence(_sentence.getSentence());
+		this.analizer.setSentenceWords(_sentence.getTokens());
+		this.analizer.setTree(_sentence.getTreebank());
+		this.opinion= this.analizer.analyze();
 		
+		this.evidences = new ArrayList<OpinionEvidence>();
+		this.evidences.addAll(new ArrayList<OpinionEvidence>(opinion.getEvidences().values()));
 		calculateSentenceSubjectivity();        		
         
     }
 
     private void calculateSentenceSubjectivity() {
 		
-    	if (this.opinions ==null)
+    	if (this.opinion ==null)
     		return;
     	
-    	this.evidences.clear();
-    	
     	double pos = 0, neg=0, subj=0;
-    	
-    	for(OpinionAnalyzedSentence opinion:opinions)
+    	if (opinion.getScore()!=null)
     	{
-    		this.evidences.addAll(new ArrayList<OpinionEvidence>(opinion.getEvidences().values()));
-    		
-    		if (opinion.getScore()!=null)
-    		{
-    			pos+=opinion.getScore().getPositivity();
-        		neg+=opinion.getScore().getNegativity();
-        		subj+=opinion.getScore().getSubjectivity();
-    		}
-    		
-    		
-    	}    	
+    			pos=opinion.getScore().getPositivity();
+        		neg=opinion.getScore().getNegativity();
+        		subj=opinion.getScore().getSubjectivity();
+    	}    		
+    	    	
     	this.score = new OpinionScore(subj, pos, neg);
 	}
 

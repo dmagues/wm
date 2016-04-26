@@ -17,10 +17,12 @@
  */
 package es.uam.irg.opinion.indicators.amazon;
 
-import es.uam.irg.dataset.amazon.AmazonItemReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Map;
 import es.uam.irg.dataset.amazon.AmazonReviewReader;
-import es.uam.irg.nlp.wordnet.WordNet;
-import es.uam.irg.opinion.sentiwordnet.SentiWordNet;
+import es.uam.irg.dataset.amazon.review.AmazonReview;
+import es.uam.irg.opinion.indicators.DocumentSentiment;
 
 /**
  * AmazonDocumentSentimentTest
@@ -33,27 +35,46 @@ import es.uam.irg.opinion.sentiwordnet.SentiWordNet;
  * @version 1.0 - 16/03/2016
  */
 public class AmazonDocumentSentimentTest {
+	private AmazonReviewReader reviews;
+	
+    public void run() throws Exception {
+    	DocumentSentiment document;    	
+    	
+    	Map<String, Map<String, AmazonReview>> _reviews = reviews.loadReviews(0,10);
+		for (String itemId : _reviews.keySet()) {
+		    Map<String, AmazonReview> itemReviews = _reviews.get(itemId);
+		    for (String userId : itemReviews.keySet()) {
+		        System.out.println("--------------------------------------------------");
+		        AmazonReview review = itemReviews.get(userId);
+				System.out.println(review);
+				System.out.println("--------------------------------------------------");
+								
+				document = new DocumentSentiment(review.getItemId(), review.getText());				
+	        	document.process();
+				System.out.println(document);
+		        		 
+			 }			
+		} 
+    }
+
+    public static void main(String[] args) throws Exception {
+    	 System.setErr(new PrintStream(new OutputStream() {  // this is to hide the meesages from CORE NLP
+
+ 		    public void write(int b) {
+ 		    }
+ 		}));
+    	 
+        String reviewsFile = "./data/amazon/amazon_reviews_music.json";
+        AmazonReviewReader amazonReviewReader = new AmazonReviewReader(reviewsFile);
+        
+        AmazonDocumentSentimentTest test = new AmazonDocumentSentimentTest();
+        test.setReviews(amazonReviewReader);
+        test.run();
+        
+    }
     
-    public void run() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public static void main(String[] args) {
-        try {
-            String wordNetFolder = "./data/WordNet-2.1/dict/";
-            String sentiWordNetFile = "./data/SentiWordNet_3.0.0/SentiWordNet_3.0.0_20130122_filtered.txt";
-            String itemsFile = "./data/amazon/amazon_metadata_music.json";
-            String reviewsFile = "./data/amazon/amazon_reviews_music.json";
-
-//            WordNet wordNet = new WordNet(wordNetFolder);
-//            SentiWordNet sentiWordNet = new SentiWordNet(sentiWordNetFile);
-//            AmazonItemReader amazonItemReader = new AmazonItemReader(itemsFile);
-//            AmazonReviewReader amazonReviewReader = new AmazonReviewReader(reviewsFile);
-
-            AmazonDocumentSentimentTest test = new AmazonDocumentSentimentTest();
-            test.run();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	public void setReviews(AmazonReviewReader reviewsFile) {
+		this.reviews=reviewsFile;
+		
+	}
 }

@@ -1,10 +1,34 @@
+/**
+ * Copyright 2016 
+ * Daniel Magües
+ * Web Mining at Universidad Autonoma de Madrid
+ *
+ * This is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with 
+ * the current software. If not, see <http://www.gnu.org/licenses/>.
+ */
 package es.uam.irg.opinion;
-
+/**
+ * OpinionWord
+ *
+ * Represent a sentence with a subjetivity score and evidences.  
+ * 
+ * @author Daniel Magües, daniel.magues@estudiante.uam.es
+ * @version 2.0 - 25/04/2016
+ *   
+ */
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class OpinionAnalyzedSentence {
 
@@ -64,14 +88,6 @@ public class OpinionAnalyzedSentence {
 	{
 		String s = "\n["+this.sentence+"]";
 		s += "\n["+this.score+"]";
-		
-//		for (Entry<OpinionWord, List<OpinionWord>> words: this.synsets.entrySet())
-//		{
-//			s+="\n" + words.toString();
-//			s+="\n\t" + this.getEvidences().get(words.getKey());
-//			for(OpinionWord ow:words.getValue())
-//			{s+="\n\t\t" + this.getEvidences().get(ow);}
-//		}
 		
 		return s;
 	}
