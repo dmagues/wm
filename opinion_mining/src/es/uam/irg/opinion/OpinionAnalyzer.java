@@ -435,8 +435,6 @@ public class OpinionAnalyzer {
 		
 		return this.aspects;
 	}
-
-
 	
 	public Map<OpinionAspect,List<OpinionEvidence>> getAspectsEvidence() {
 		// TODO Auto-generated method stub

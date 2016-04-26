@@ -34,6 +34,9 @@ import es.uam.irg.opinion.indicators.AspectSentiments;
  *
  * @author Ivan Cantador, ivan.cantador@uam.es
  * @version 1.0 - 16/03/2016
+ * 
+ * @author Daniel Magües, daniel.magues@estudiante.uam.es
+ * @version 2.0 - 25/04/2016
  */
 public class AmazonAspectSentimentsTest {
 	private AmazonReviewReader reviews;
