@@ -30,6 +30,8 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.impl.PropertyImpl;
+
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URLDecoder;
@@ -40,6 +42,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.SingleGraph;
+
 
 /**
  * DBpedia
@@ -48,11 +54,13 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * @author Ivan Cantador, ivan.cantador@uam.es
  * @version 1.0 - 16/03/2016
+ * @author Daniel Magües, daniel.magues@estudiante.uam.es
+ * @version 2.0 - 26/04/2016
  */
 public class DBpedia {
 
-    public static final String SPARQL_ENDPOINT = "http://dbpedia.org/sparql"; // old endpoint
-//    public static final String SPARQL_ENDPOINT = "http://live.dbpedia.org/sparql";
+//    public static final String SPARQL_ENDPOINT = "http://dbpedia.org/sparql"; // old endpoint
+    public static final String SPARQL_ENDPOINT = "http://live.dbpedia.org/sparql";
     public static final Map<String, String> NAMESPACES;
 
     static {
@@ -286,7 +294,7 @@ public class DBpedia {
     			+ " UNION "
     			+ "	{dbr:"+subjectURI+" rdf:type ?o} "
     			+ " UNION "    			
-    			+ "	{dbr:"+subjectURI+" dbp:wordnet_type ?o} ."
+    			+ "	{dbr:"+subjectURI+" dbp:wordnet_type ?o} ."    					
    				+" 	}";
     	
     	Query sparqlQuery = QueryFactory.create(query);
@@ -381,33 +389,124 @@ public class DBpedia {
     public static List<ScoredRDFNode> queryForEntitiesWithLabelAs(String text, List<String> forbiddenURIsPatterns) throws Exception {
     	List<ScoredRDFNode> results = new ArrayList<ScoredRDFNode>();
     	
+    	/* LIMIT 50 Para evitar el timeout pero nunca hay mas de 30*/
         String query = NAMESPACES_SPARQL 
         		+ "SELECT ?s ?label "
         		+ " WHERE "
         		+ "{" 
         		+ " ?s rdfs:label ?label . "
-        		+ " FILTER regex(?label, '"+text+"', 'i')" 
-        		+ "}";
+        		+ " FILTER regex(?label, '"+text+"', 'i') " 
+        		+ "} LIMIT 50";
         
         Query sparqlQuery = QueryFactory.create(query);
     	QueryExecution qexec = QueryExecutionFactory.sparqlService(SPARQL_ENDPOINT, sparqlQuery);
     	
     	
     	if (qexec != null) {
+    		qexec.setTimeout(-1);
             ResultSet resultSet = qexec.execSelect();
             while (resultSet != null && resultSet.hasNext()) {
                 QuerySolution solution = resultSet.nextSolution();
+
                 RDFNode subject = solution.get("s");
                 RDFNode object = solution.get("label");
                 
-                ScoredRDFNode scoredNode = new ScoredRDFNode(subject, 
-                		StringUtils.getLevenshteinDistance(text, object.asLiteral().getString()));
-                results.add(scoredNode);                
+                if (isValidURI(URLDecoder.decode(subject.asNode().getURI(), "UTF-8"), forbiddenURIsPatterns))
+                {
+                	ScoredRDFNode scoredNode = new ScoredRDFNode(subject, 
+                    		StringUtils.getLevenshteinDistance(text, object.asLiteral().getString()));
+                    results.add(scoredNode);                	
+                }
+                
+                                
             }
             qexec.close();
         }
         
-        return null;
+        return results;
+    }
+    
+    /**
+     * Queries DBpedia SPARQL endpoint to retrieve Marvel heros by team.
+     * Create a Graph (Graphstream) that represente the connection between heros and teams
+     * 
+     * @throws Exception
+     */
+    public static void queryForComicsGraph() throws Exception {
+       
+    	String query= NAMESPACES_SPARQL
+    			+ "SELECT  ?s ?p ?id ?hero ?teamId ?team "
+    			+ "WHERE { "
+    			+ "	?s dct:subject dbc:Marvel_Comics_superheroes . "
+    			+ " ?s rdfs:label ?hero . "
+    			+ "	?s dbo:wikiPageID ?id . "
+    			+ " ?p dbp:members ?s . "    			
+    			+ "	?p dbo:wikiPageID ?teamId . "
+    			+ "	?p rdfs:label ?team . "
+    			+ "	FILTER(LANG(?hero) = '' || LANGMATCHES(LANG(?hero),'en')) . "
+    			+ "	FILTER(LANG(?team) = '' || LANGMATCHES(LANG(?team),'en')) . "
+   				+" 	}";
+    	
+    	Query sparqlQuery = QueryFactory.create(query);
+    	QueryExecution qexec = QueryExecutionFactory.sparqlService(SPARQL_ENDPOINT, sparqlQuery);
+    	Map<String, String> heros = new HashMap<String, String>();
+    	Map<String, String> teams = new HashMap<String, String>();
+    	
+    	SingleGraph g = new SingleGraph("Teams Marvel");
+    	g.setStrict(false);
+    	g.addAttribute("ui.quality");
+    	g.addAttribute("ui.antialias");
+    	g.addAttribute("layout.gravity", 0.01);
+    	
+    	if (qexec != null) {
+            ResultSet resultSet = qexec.execSelect();
+            while (resultSet != null && resultSet.hasNext()) {
+                QuerySolution solution = resultSet.nextSolution();
+                String id = solution.get("id").asLiteral().getString();
+                String hero = solution.get("hero").asLiteral().getString();
+                String teamId = solution.get("teamId").asLiteral().getString();
+                String team = solution.get("team").asLiteral().getString();
+                
+                if (!heros.containsValue(hero));
+                {
+                	heros.put(id, hero);
+                	Node nodeHero = g.addNode(hero);
+                	nodeHero.addAttribute("type", "hero");
+                	nodeHero.addAttribute("ui.label", hero);
+                	nodeHero.addAttribute("ui.style", "fill-color: rgb(0,100,255); size: 5px; z-index: 0; text-alignment: at-left;");
+                	nodeHero.addAttribute("layout.weight", 3);
+                	
+                }	
+                if (!teams.containsValue(team));
+                {
+                	teams.put(teamId, team);
+                	Node nodeTeam = g.addNode(team);
+                	nodeTeam.addAttribute("type", "team");
+                	nodeTeam.addAttribute("ui.label", team);
+                	nodeTeam.addAttribute("ui.style", "fill-color: rgb(255,100,0); size: 7px; shape: line; text-alignment: at-left;");
+                	nodeTeam.addAttribute("layout.weight", 3);
+                	
+                }
+                
+                Edge edge = g.addEdge(id+"-"+teamId, hero, team);
+                edge.setAttribute("layout.weight", 5);
+                edge.addAttribute("ui.style", "shape: line;");
+                	
+            }
+            qexec.close();
+        }
+    	
+    	System.out.println(heros);
+    	System.out.println(teams);
+    	
+    	g.display();
+    	
+    	
+    }
+    
+    private static boolean isValidURI(String uri, List<String> forbiddenURIsPatterns)
+    {    	
+    	return (forbiddenURIsPatterns==null || forbiddenURIsPatterns.stream().filter(p-> uri.contains(p)).count()==0);
     }
 
     public static void test0() throws Exception {
@@ -467,7 +566,7 @@ public class DBpedia {
     public static void test1() throws Exception {
         System.out.println("================================================================================");
         System.out.println("Test 1: Obtaining the categories/types of certain instance\n");
-        String subject2URI = "Marvel_Comics"; //"Autonomous_University_of_Madrid";
+        String subject2URI = "Autonomous_University_of_Madrid";
         List<RDFNode> types = DBpedia.queryForCategoriesAndTypesOf(subject2URI);
         System.out.println(subject2URI);
         for (RDFNode type : types) {
@@ -480,7 +579,7 @@ public class DBpedia {
 
         System.out.println("================================================================================");
         System.out.println("Test 2: Obtaining the instances of certain category/type\n");
-        String categoryURI = "Category:Marvel_Comics_superheroes"; //"Category:Universities_in_Madrid";
+        String categoryURI = "Category:Universities_in_Madrid";
         List<RDFNode> instances = DBpedia.queryForInstancesOf(categoryURI);
         System.out.println(categoryURI);
         for (RDFNode instance : instances) {
@@ -496,14 +595,16 @@ public class DBpedia {
         System.out.println("================================================================================");
         System.out.println("Test 2: Obtaining entities with certain label\n");
 
-        String label = "atlÃ©tico madrid";
+        // Definiemos el label como una expresión regular para obtener mas resultados
+        // Regex: atl[é|e]tico.*madrid 
+        String label = "atl[é|e]tico.*madrid";
         List<String> forbiddenURIsPatterns = new ArrayList<String>();
         forbiddenURIsPatterns.add("Category");
         forbiddenURIsPatterns.add("_in_");
         forbiddenURIsPatterns.add("_B");
         forbiddenURIsPatterns.add("_C");
         forbiddenURIsPatterns.add("_c");
-        forbiddenURIsPatterns.add("match");
+        forbiddenURIsPatterns.add("match"); 
         forbiddenURIsPatterns.add("season");
         forbiddenURIsPatterns.add("player");
         forbiddenURIsPatterns.add("footballer");
@@ -515,18 +616,21 @@ public class DBpedia {
             Resource entity = result.getNode().asResource();
             System.out.println(URLDecoder.decode(entity.getURI(), "UTF-8"));
             System.out.println("\t" + result.getScore());
-        }
+        }  
     }
 
     public static void test3() throws Exception {
         System.out.println("================================================================================");
         System.out.println("Test 3: ...\n");
+        
+        queryForComicsGraph();
+        
     }
 
     public static void main(String[] args) {
         try {
 //            DBpedia.test0();
-            DBpedia.test1();
+//            DBpedia.test1();
 //            DBpedia.test2();
 //            DBpedia.test3();
         } catch (Exception e) {

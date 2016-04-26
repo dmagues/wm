@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/apache-jena-2.7.4/xercesImpl-2.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/apache-jena-2.7.4/xml-apis-1.4.01.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="lib/gs-core-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
