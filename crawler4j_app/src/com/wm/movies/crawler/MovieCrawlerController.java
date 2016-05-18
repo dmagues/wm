@@ -1,4 +1,4 @@
-package com.crawler.wm;
+package com.wm.movies.crawler;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.crawler.wm.data.PropertyFileManager;
+import com.wm.movies.crawler.data.PropertyFileManager;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -112,7 +112,7 @@ public class MovieCrawlerController {
 	     */
 	    config.setResumableCrawling(false);
 
-	    config.setUserAgentString("movie crawler - uam.es - dmagues@hotmail.com");
+	    config.setUserAgentString("movie crawler - UAM Madrid - dmagues@estudiante.uam.es");
 	    
 	    /*
 	     * Instantiate the controller for this crawl.

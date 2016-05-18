@@ -1,4 +1,4 @@
-package com.crawler.wm.data;
+package com.wm.movies.crawler.data;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class PropertyFileManager {
-	private static final String PROPERTYFILE="com/crawler/wm/data/conf.properties";
+	private static final String PROPERTYFILE="com/wm/movies/crawler/data/conf.properties";
 	private static Properties prop=null;
 	private static final InputStream input = PropertyFileManager.class.getClassLoader().getResourceAsStream(PROPERTYFILE);
 	

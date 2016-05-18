@@ -1,4 +1,4 @@
-package com.crawler.wm;
+package com.wm.movies.crawler;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -59,6 +59,12 @@ public class MovieCrawler extends WebCrawler{
 			break;
 		case REVIEWS:
 			myScraper = new MovieReviewScrapper();
+			break;
+		case USER_REVIEWS:
+			myScraper = new MovieUserReviewsScrapper();
+			break;
+		default:
+			myScraper = new MovieScraper();
 			break;			
 		}
 		
@@ -101,6 +107,10 @@ public class MovieCrawler extends WebCrawler{
 					return true;
 				}
 			}
+			break;
+		case USER_REVIEWS:
+			if (url.getURL()!=null && url.getURL().contains("reviews?"))
+			{ 	return true; }
 			break;
 		}		
 

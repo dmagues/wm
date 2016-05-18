@@ -1,4 +1,4 @@
-package com.crawler.wm;
+package com.wm.movies.crawler;
 
 public class CrawlData {
 

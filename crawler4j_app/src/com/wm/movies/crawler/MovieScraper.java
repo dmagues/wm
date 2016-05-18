@@ -1,4 +1,4 @@
-package com.crawler.wm;
+package com.wm.movies.crawler;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

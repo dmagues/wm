@@ -1,4 +1,4 @@
-package com.crawler.wm;
+package com.wm.movies.crawler;
 
 import java.io.IOException;
 
@@ -41,10 +41,10 @@ public class MovieApp {
 			return;
 		}
 		
-		if (!isBetween(mode, 0, 2))
+		if (!isBetween(mode, 0, 3))
 		{
 			System.out.println("Parámetro Incorrecto: ");
-			System.out.println("\t mode \t(valores posibles 0:STANDARD, 1:MOVIELIST, 2:REVIEWS) ");
+			System.out.println("\t mode \t(valores posibles 0:STANDARD, 1:MOVIELIST, 2:REVIEWS, 3:USER REVIEWS) ");
 			return;
 		}
 		

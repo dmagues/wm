@@ -1,7 +1,7 @@
-package com.crawler.wm;
+package com.wm.movies.crawler;
 
 public enum Mode {
-	STANDARD, MOVIELIST, REVIEWS;
+	STANDARD, MOVIELIST, REVIEWS, USER_REVIEWS;
 	public static final Mode[] modes =  Mode.values();
 	public static final Mode fromInt(int value){
 		try

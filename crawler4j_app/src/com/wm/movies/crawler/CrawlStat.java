@@ -1,4 +1,4 @@
-package com.crawler.wm;
+package com.wm.movies.crawler;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
